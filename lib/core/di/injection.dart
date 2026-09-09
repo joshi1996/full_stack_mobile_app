@@ -1,3 +1,5 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:full_stack_mobile_app/features/auth/data/datasources/auth_local_data_source.dart';
 import 'package:full_stack_mobile_app/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:full_stack_mobile_app/features/auth/data/datasources/auth_remote_data_source_impl.dart';
 import 'package:full_stack_mobile_app/features/auth/data/repositories/auth_repository_impl.dart';
@@ -17,7 +19,10 @@ void registerAuthDependencies() {
 
   // Repository
   getIt.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(getIt<AuthRemoteDataSource>()),
+    () => AuthRepositoryImpl(
+      getIt<AuthRemoteDataSource>(),
+      getIt<AuthLocalDataSource>(),
+    ),
   );
 
   // Use cases
@@ -28,5 +33,11 @@ void registerAuthDependencies() {
 
   getIt.registerLazySingleton<AuthBloc>(
     () => AuthBloc(getIt<AuthRepository>()),
+  );
+
+  getIt.registerLazySingleton<FlutterSecureStorage>(FlutterSecureStorage.new);
+
+  getIt.registerLazySingleton<AuthLocalDataSource>(
+    () => AuthLocalDataSourceImpl(getIt<FlutterSecureStorage>()),
   );
 }
