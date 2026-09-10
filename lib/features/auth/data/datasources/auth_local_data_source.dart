@@ -17,7 +17,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   final FlutterSecureStorage storage;
 
-  static const _userKey = 'auth_user';
+  static const String _userKey = 'auth_user';
 
   @override
   Future<void> saveUser(UserModel user) async {

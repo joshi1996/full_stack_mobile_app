@@ -6,10 +6,10 @@ import 'package:full_stack_mobile_app/features/auth/presentation/bloc/auth_bloc.
 
 void main() {
   registerAuthDependencies();
+  registerHomeDependencies();
+  final authBloc = getIt<AuthBloc>();
+
   runApp(
-    BlocProvider(
-      create: (_) => getIt<AuthBloc>()..checkAuthStatus(),
-      child: const App(),
-    ),
+    BlocProvider.value(value: authBloc..checkAuthStatus(), child: const App()),
   );
 }

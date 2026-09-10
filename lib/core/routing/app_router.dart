@@ -8,6 +8,8 @@ import 'package:full_stack_mobile_app/features/auth/presentation/bloc/login_bloc
 import 'package:full_stack_mobile_app/features/auth/presentation/pages/auth_loading_page.dart';
 import 'package:full_stack_mobile_app/features/auth/presentation/pages/login_page.dart';
 import 'package:full_stack_mobile_app/features/home/presentation/pages/home_page.dart';
+import 'package:full_stack_mobile_app/features/home/presentation/widgets/customer_app_shell.dart';
+import 'package:full_stack_mobile_app/features/home/presentation/widgets/customer_placeholder_page.dart';
 import 'package:go_router/go_router.dart';
 
 abstract final class AppRouter {
@@ -15,31 +17,29 @@ abstract final class AppRouter {
     final refreshNotifier = AuthRefreshNotifier(authBloc);
 
     return GoRouter(
+      initialLocation: '/auth-loading',
       refreshListenable: refreshNotifier,
 
       redirect: (context, state) {
         final authStatus = authBloc.state.status;
+        final location = state.matchedLocation;
 
-        final isLoginRoute = state.matchedLocation == '/login';
+        final isLoginRoute = location == '/login';
+        final isAuthLoadingRoute = location == '/auth-loading';
 
+        // Authentication is still being restored.
         if (authStatus == AuthStatus.unknown) {
-          if (state.matchedLocation == '/auth-loading') {
-            return null;
-          }
-
-          return '/auth-loading';
+          return isAuthLoadingRoute ? null : '/auth-loading';
         }
 
+        // User is not authenticated.
         if (authStatus == AuthStatus.unauthenticated) {
-          if (isLoginRoute) {
-            return null;
-          }
-
-          return '/login';
+          return isLoginRoute ? null : '/login';
         }
 
+        // User is authenticated.
         if (authStatus == AuthStatus.authenticated) {
-          if (isLoginRoute) {
+          if (isLoginRoute || isAuthLoadingRoute) {
             return '/';
           }
         }
@@ -48,13 +48,6 @@ abstract final class AppRouter {
       },
 
       routes: [
-        GoRoute(
-          path: '/',
-          name: RouteNames.home,
-          builder: (context, state) {
-            return const HomePage();
-          },
-        ),
         GoRoute(
           path: '/login',
           name: RouteNames.login,
@@ -65,12 +58,56 @@ abstract final class AppRouter {
             );
           },
         ),
+
         GoRoute(
           path: '/auth-loading',
           name: RouteNames.authLoading,
           builder: (context, state) {
             return const AuthLoadingPage();
           },
+        ),
+
+        ShellRoute(
+          builder: (context, state, child) {
+            return CustomerAppShell(child: child);
+          },
+          routes: [
+            GoRoute(
+              path: '/',
+              name: RouteNames.home,
+              builder: (context, state) {
+                return const HomePage();
+              },
+            ),
+            GoRoute(
+              path: '/explore',
+              name: RouteNames.explore,
+              builder: (context, state) {
+                return const CustomerPlaceholderPage(title: 'Explore');
+              },
+            ),
+            GoRoute(
+              path: '/cart',
+              name: RouteNames.cart,
+              builder: (context, state) {
+                return const CustomerPlaceholderPage(title: 'Cart');
+              },
+            ),
+            GoRoute(
+              path: '/orders',
+              name: RouteNames.orders,
+              builder: (context, state) {
+                return const CustomerPlaceholderPage(title: 'Orders');
+              },
+            ),
+            GoRoute(
+              path: '/profile',
+              name: RouteNames.profile,
+              builder: (context, state) {
+                return const CustomerPlaceholderPage(title: 'Profile');
+              },
+            ),
+          ],
         ),
       ],
     );

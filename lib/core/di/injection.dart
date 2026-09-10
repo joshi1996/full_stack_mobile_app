@@ -7,6 +7,10 @@ import 'package:full_stack_mobile_app/features/auth/domain/repositories/auth_rep
 import 'package:full_stack_mobile_app/features/auth/domain/usecases/login.dart';
 import 'package:full_stack_mobile_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:full_stack_mobile_app/features/auth/presentation/bloc/login_bloc.dart';
+import 'package:full_stack_mobile_app/features/home/data/datasources/home_data_source.dart';
+import 'package:full_stack_mobile_app/features/home/data/repositories/home_repository_impl.dart';
+import 'package:full_stack_mobile_app/features/home/domain/repositories/home_repository.dart';
+import 'package:full_stack_mobile_app/features/home/presentation/bloc/home_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 final getIt = GetIt.instance;
@@ -40,4 +44,14 @@ void registerAuthDependencies() {
   getIt.registerLazySingleton<AuthLocalDataSource>(
     () => AuthLocalDataSourceImpl(getIt<FlutterSecureStorage>()),
   );
+}
+
+void registerHomeDependencies() {
+  getIt.registerLazySingleton<HomeDataSource>(HomeDataSourceImpl.new);
+
+  getIt.registerLazySingleton<HomeRepository>(
+    () => HomeRepositoryImpl(getIt<HomeDataSource>()),
+  );
+
+  getIt.registerFactory<HomeBloc>(() => HomeBloc(getIt<HomeRepository>()));
 }
