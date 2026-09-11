@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:full_stack_mobile_app/core/theme/app_spacing.dart';
+import 'package:full_stack_mobile_app/shared/widgets/app_network_image.dart';
 import 'package:full_stack_mobile_app/shared/widgets/discount_badge.dart';
 import 'package:full_stack_mobile_app/shared/widgets/price_text.dart';
 import 'package:full_stack_mobile_app/shared/widgets/rating_view.dart';
@@ -92,22 +93,7 @@ class _ProductImage extends StatelessWidget {
       child: Stack(
         children: [
           Positioned.fill(
-            child: Image.network(
-              imageUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) {
-                return const Center(
-                  child: Icon(Icons.image_not_supported_outlined),
-                );
-              },
-              loadingBuilder: (context, child, progress) {
-                if (progress == null) {
-                  return child;
-                }
-
-                return const Center(child: CircularProgressIndicator());
-              },
-            ),
+            child: AppNetworkImage(imageUrl: imageUrl, fit: BoxFit.cover),
           ),
           if (discountPercentage != null)
             Positioned(

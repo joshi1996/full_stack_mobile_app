@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:full_stack_mobile_app/shared/widgets/app_network_image.dart';
 
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -27,24 +28,12 @@ class CategoryCarousel extends StatelessWidget {
               onTap: () {},
               child: Column(
                 children: [
-                  ClipRRect(
+                  AppNetworkImage(
+                    imageUrl: category.imageUrl,
+                    width: 90,
+                    height: 90,
                     borderRadius: BorderRadius.circular(AppRadius.lg),
-                    child: Image.network(
-                      category.imageUrl,
-                      width: 90,
-                      height: 90,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) {
-                        return Container(
-                          width: 90,
-                          height: 90,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.surfaceContainerHighest,
-                          child: const Icon(Icons.category_outlined),
-                        );
-                      },
-                    ),
+                    semanticLabel: category.name,
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(

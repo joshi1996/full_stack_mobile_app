@@ -23,7 +23,33 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     HomeRefreshed event,
     Emitter<HomeState> emit,
   ) async {
-    await _loadHome(emit, showLoading: false);
+    // If there is no existing content, perform a normal initial load.
+    if (state.configuration == null) {
+      await _loadHome(emit, showLoading: true);
+      return;
+    }
+
+    emit(state.copyWith(isRefreshing: true, errorMessage: null));
+
+    final result = await repository.getHomeConfiguration();
+
+    result.fold(
+      (failure) {
+        emit(
+          state.copyWith(isRefreshing: false, errorMessage: failure.message),
+        );
+      },
+      (configuration) {
+        emit(
+          state.copyWith(
+            status: HomeStatus.success,
+            configuration: configuration,
+            isRefreshing: false,
+            errorMessage: null,
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _loadHome(
@@ -31,7 +57,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     required bool showLoading,
   }) async {
     if (showLoading) {
-      emit(state.copyWith(status: HomeStatus.loading));
+      emit(
+        state.copyWith(
+          status: HomeStatus.loading,
+          isRefreshing: false,
+          errorMessage: null,
+        ),
+      );
     }
 
     final result = await repository.getHomeConfiguration();
@@ -41,6 +73,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         emit(
           state.copyWith(
             status: HomeStatus.failure,
+            isRefreshing: false,
             errorMessage: failure.message,
           ),
         );
@@ -50,6 +83,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           state.copyWith(
             status: HomeStatus.success,
             configuration: configuration,
+            isRefreshing: false,
             errorMessage: null,
           ),
         );
