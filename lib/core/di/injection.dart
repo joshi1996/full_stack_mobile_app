@@ -7,6 +7,10 @@ import 'package:full_stack_mobile_app/features/auth/domain/repositories/auth_rep
 import 'package:full_stack_mobile_app/features/auth/domain/usecases/login.dart';
 import 'package:full_stack_mobile_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:full_stack_mobile_app/features/auth/presentation/bloc/login_bloc.dart';
+import 'package:full_stack_mobile_app/features/catalog/data/datasources/catalog_data_source.dart';
+import 'package:full_stack_mobile_app/features/catalog/data/repositories/catalog_repository_impl.dart';
+import 'package:full_stack_mobile_app/features/catalog/domain/repositories/catalog_repository.dart';
+import 'package:full_stack_mobile_app/features/catalog/presentation/bloc/catalog_bloc.dart';
 import 'package:full_stack_mobile_app/features/home/data/datasources/home_data_source.dart';
 import 'package:full_stack_mobile_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:full_stack_mobile_app/features/home/domain/repositories/home_repository.dart';
@@ -54,4 +58,16 @@ void registerHomeDependencies() {
   );
 
   getIt.registerFactory<HomeBloc>(() => HomeBloc(getIt<HomeRepository>()));
+}
+
+void registerCatalogDependencies() {
+  getIt.registerLazySingleton<CatalogDataSource>(CatalogDataSourceImpl.new);
+
+  getIt.registerLazySingleton<CatalogRepository>(
+    () => CatalogRepositoryImpl(getIt<CatalogDataSource>()),
+  );
+
+  getIt.registerFactory<CatalogBloc>(
+    () => CatalogBloc(getIt<CatalogRepository>()),
+  );
 }

@@ -7,6 +7,8 @@ import 'package:full_stack_mobile_app/features/auth/presentation/bloc/auth_bloc.
 void main() {
   registerAuthDependencies();
   registerHomeDependencies();
+  registerCatalogDependencies();
+
   final authBloc = getIt<AuthBloc>();
 
   runApp(
