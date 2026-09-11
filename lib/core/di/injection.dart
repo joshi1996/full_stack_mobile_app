@@ -11,6 +11,7 @@ import 'package:full_stack_mobile_app/features/catalog/data/datasources/catalog_
 import 'package:full_stack_mobile_app/features/catalog/data/repositories/catalog_repository_impl.dart';
 import 'package:full_stack_mobile_app/features/catalog/domain/repositories/catalog_repository.dart';
 import 'package:full_stack_mobile_app/features/catalog/presentation/bloc/catalog_bloc.dart';
+import 'package:full_stack_mobile_app/features/catalog/presentation/bloc/product_details_bloc.dart';
 import 'package:full_stack_mobile_app/features/home/data/datasources/home_data_source.dart';
 import 'package:full_stack_mobile_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:full_stack_mobile_app/features/home/domain/repositories/home_repository.dart';
@@ -69,5 +70,9 @@ void registerCatalogDependencies() {
 
   getIt.registerFactory<CatalogBloc>(
     () => CatalogBloc(getIt<CatalogRepository>()),
+  );
+
+  getIt.registerFactory<ProductDetailsBloc>(
+    () => ProductDetailsBloc(getIt<CatalogRepository>()),
   );
 }

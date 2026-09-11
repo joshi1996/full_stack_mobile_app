@@ -7,4 +7,5 @@ abstract final class RouteNames {
   static const cart = 'cart';
   static const orders = 'orders';
   static const profile = 'profile';
+  static const productDetails = 'product-details';
 }

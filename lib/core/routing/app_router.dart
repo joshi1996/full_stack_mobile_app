@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:full_stack_mobile_app/core/di/injection.dart';
 import 'package:full_stack_mobile_app/core/routing/auth_refresh_notifier.dart';
@@ -7,6 +8,7 @@ import 'package:full_stack_mobile_app/features/auth/presentation/bloc/auth_bloc.
 import 'package:full_stack_mobile_app/features/auth/presentation/bloc/login_bloc.dart';
 import 'package:full_stack_mobile_app/features/auth/presentation/pages/auth_loading_page.dart';
 import 'package:full_stack_mobile_app/features/auth/presentation/pages/login_page.dart';
+import 'package:full_stack_mobile_app/features/catalog/presentation/pages/product_details_page.dart';
 import 'package:full_stack_mobile_app/features/home/presentation/pages/home_page.dart';
 import 'package:full_stack_mobile_app/features/home/presentation/widgets/customer_app_shell.dart';
 import 'package:full_stack_mobile_app/features/home/presentation/widgets/customer_placeholder_page.dart';
@@ -108,6 +110,22 @@ abstract final class AppRouter {
               },
             ),
           ],
+        ),
+
+        GoRoute(
+          path: '/product/:productId',
+          name: RouteNames.productDetails,
+          builder: (context, state) {
+            final productId = state.pathParameters['productId'];
+
+            if (productId == null || productId.isEmpty) {
+              return const Scaffold(
+                body: Center(child: Text('Product not found')),
+              );
+            }
+
+            return ProductDetailsPage(productId: productId);
+          },
         ),
       ],
     );
