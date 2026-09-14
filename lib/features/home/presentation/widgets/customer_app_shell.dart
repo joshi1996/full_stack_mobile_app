@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:full_stack_mobile_app/core/routing/route_paths.dart';
+import 'package:full_stack_mobile_app/features/cart/presentation/bloc/cart_bloc.dart';
+import 'package:full_stack_mobile_app/features/cart/presentation/bloc/cart_state.dart';
+import 'package:full_stack_mobile_app/features/cart/presentation/widgets/cart_badge.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/routing/route_names.dart';
@@ -164,17 +169,17 @@ class _DesktopNavigation extends StatelessWidget {
   String _routePath(String routeName) {
     switch (routeName) {
       case RouteNames.home:
-        return '/';
+        return RoutePaths.home;
       case RouteNames.explore:
-        return '/explore';
+        return RoutePaths.explore;
       case RouteNames.cart:
-        return '/cart';
+        return RoutePaths.cart;
       case RouteNames.orders:
-        return '/orders';
+        return RoutePaths.orders;
       case RouteNames.profile:
-        return '/profile';
+        return RoutePaths.profile;
       default:
-        return '/';
+        return RoutePaths.home;
     }
   }
 }
@@ -224,10 +229,16 @@ class _MobileHeader extends StatelessWidget {
                   onPressed: () {},
                   icon: const Icon(Icons.notifications_none),
                 ),
-                IconButton(
-                  tooltip: 'Cart',
-                  onPressed: () => context.goNamed(RouteNames.cart),
-                  icon: const Icon(Icons.shopping_cart_outlined),
+                BlocSelector<CartBloc, CartState, int>(
+                  selector: (state) => state.cart.totalItems,
+                  builder: (context, itemCount) {
+                    return CartBadge(
+                      count: itemCount,
+                      onPressed: () {
+                        context.goNamed(RouteNames.cart);
+                      },
+                    );
+                  },
                 ),
               ],
             ),
@@ -263,10 +274,16 @@ class _DesktopHeader extends StatelessWidget {
               onPressed: () {},
               icon: const Icon(Icons.notifications_none),
             ),
-            IconButton(
-              tooltip: 'Cart',
-              onPressed: () => context.goNamed(RouteNames.cart),
-              icon: const Icon(Icons.shopping_cart_outlined),
+            BlocSelector<CartBloc, CartState, int>(
+              selector: (state) => state.cart.totalItems,
+              builder: (context, itemCount) {
+                return CartBadge(
+                  count: itemCount,
+                  onPressed: () {
+                    context.go(RouteNames.cart);
+                  },
+                );
+              },
             ),
             IconButton(
               tooltip: 'Profile',

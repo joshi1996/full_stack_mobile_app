@@ -8,4 +8,7 @@ abstract final class RouteNames {
   static const orders = 'orders';
   static const profile = 'profile';
   static const productDetails = 'product-details';
+  static const checkout = 'checkout';
+  static const addressSelection = 'address-selection';
+  static const addAddress = 'add-address';
 }

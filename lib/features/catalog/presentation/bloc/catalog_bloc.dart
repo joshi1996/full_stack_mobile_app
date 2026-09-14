@@ -37,10 +37,17 @@ class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
         );
       },
       (products) {
+        final filteredProducts = state.categoryId == null
+            ? products
+            : products
+                  .where((product) => product.categoryId == state.categoryId)
+                  .toList();
+
         emit(
           state.copyWith(
             status: CatalogStatus.success,
-            products: products,
+            products: filteredProducts,
+            categoryId: event.categoryId,
             isRefreshing: false,
             errorMessage: null,
           ),
@@ -54,7 +61,7 @@ class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
     Emitter<CatalogState> emit,
   ) async {
     if (state.products.isEmpty) {
-      add(const CatalogStarted());
+      add(CatalogStarted(categoryId: state.categoryId));
       return;
     }
 
@@ -69,10 +76,16 @@ class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
         );
       },
       (products) {
+        final filteredProducts = state.categoryId == null
+            ? products
+            : products
+                  .where((product) => product.categoryId == state.categoryId)
+                  .toList();
+
         emit(
           state.copyWith(
             status: CatalogStatus.success,
-            products: products,
+            products: filteredProducts,
             isRefreshing: false,
             errorMessage: null,
           ),

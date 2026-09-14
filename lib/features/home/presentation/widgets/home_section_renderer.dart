@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:full_stack_mobile_app/core/routing/route_names.dart';
+import 'package:full_stack_mobile_app/features/home/domain/entities/category.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../domain/entities/home_section.dart';
 import 'category_carousel.dart';
@@ -15,7 +18,7 @@ class HomeSectionRenderer extends StatelessWidget {
   Widget build(BuildContext context) {
     return switch (section.type) {
       HomeSectionType.hero => _buildHero(),
-      HomeSectionType.categories => _buildCategories(),
+      HomeSectionType.categories => _buildCategories(context),
       HomeSectionType.flashDeals => _buildProducts(),
       HomeSectionType.products => _buildProducts(),
       HomeSectionType.recommendations => _buildProducts(),
@@ -32,13 +35,21 @@ class HomeSectionRenderer extends StatelessWidget {
     return HeroBanner(campaign: campaign);
   }
 
-  Widget _buildCategories() {
+  Widget _buildCategories(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionHeader(title: section.title, subtitle: section.subtitle),
         const SizedBox(height: 16),
-        CategoryCarousel(categories: section.categories),
+        CategoryCarousel(
+          categories: section.categories,
+          onCategoryTap: (Category category) {
+            context.goNamed(
+              RouteNames.explore,
+              queryParameters: {'category': category.id},
+            );
+          },
+        ),
       ],
     );
   }

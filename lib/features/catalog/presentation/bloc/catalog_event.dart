@@ -1,16 +1,21 @@
 import 'package:equatable/equatable.dart';
 
-sealed class CatalogEvent extends Equatable {
+abstract class CatalogEvent extends Equatable {
   const CatalogEvent();
 
   @override
   List<Object?> get props => [];
 }
 
-final class CatalogStarted extends CatalogEvent {
-  const CatalogStarted();
+class CatalogStarted extends CatalogEvent {
+  const CatalogStarted({this.categoryId});
+
+  final String? categoryId;
+
+  @override
+  List<Object?> get props => [categoryId];
 }
 
-final class CatalogRefreshed extends CatalogEvent {
+class CatalogRefreshed extends CatalogEvent {
   const CatalogRefreshed();
 }

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:full_stack_mobile_app/features/catalog/domain/entities/product.dart';
 import 'package:full_stack_mobile_app/features/catalog/presentation/widgets/product_gallery.dart';
 import 'package:full_stack_mobile_app/features/catalog/presentation/widgets/product_information.dart';
 
 import '../../../../core/theme/app_spacing.dart';
+import '../../../cart/domain/entities/cart_item.dart';
+import '../../../cart/presentation/bloc/cart_bloc.dart';
+import '../../../cart/presentation/bloc/cart_event.dart';
 import '../bloc/product_details_bloc.dart';
 import '../bloc/product_details_state.dart';
 
@@ -25,7 +29,7 @@ class ProductDetailsContent extends StatelessWidget {
             return _ProductDetailsError(
               message: state.errorMessage,
               onRetry: () {
-                // We'll wire retry properly in the next refinement.
+                // Retry will be connected in the next refinement.
               },
             );
 
@@ -45,48 +49,109 @@ class ProductDetailsContent extends StatelessWidget {
                   final isDesktop = constraints.maxWidth >= 900;
 
                   if (isDesktop) {
-                    return SingleChildScrollView(
-                      padding: const EdgeInsets.all(AppSpacing.xl),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            flex: 6,
-                            child: ProductGallery(
-                              images: product.images,
-                              productName: product.name,
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.xxl),
-                          Expanded(
-                            flex: 5,
-                            child: ProductInformation(product: product),
-                          ),
-                        ],
-                      ),
-                    );
+                    return _DesktopProductDetails(product: product);
                   }
 
-                  return SingleChildScrollView(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ProductGallery(
-                          images: product.images,
-                          productName: product.name,
-                        ),
-                        const SizedBox(height: AppSpacing.xl),
-                        ProductInformation(product: product),
-                      ],
-                    ),
-                  );
+                  return _MobileProductDetails(product: product);
                 },
               ),
             );
         }
       },
     );
+  }
+}
+
+class _DesktopProductDetails extends StatelessWidget {
+  const _DesktopProductDetails({required this.product});
+
+  final Product product;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(AppSpacing.xl),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 6,
+            child: ProductGallery(
+              images: product.images,
+              productName: product.name,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.xxl),
+          Expanded(
+            flex: 5,
+            child: ProductInformation(
+              product: product,
+              onAddToCart: () => _addToCart(context),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _addToCart(BuildContext context) {
+    context.read<CartBloc>().add(
+      CartItemAdded(
+        CartItem(
+          productId: product.id,
+          productName: product.name,
+          imageUrl: product.images.isNotEmpty ? product.images.first : '',
+          unitPrice: product.price,
+          quantity: 1,
+        ),
+      ),
+    );
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Added to cart')));
+  }
+}
+
+class _MobileProductDetails extends StatelessWidget {
+  const _MobileProductDetails({required this.product});
+
+  final Product product;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ProductGallery(images: product.images, productName: product.name),
+          const SizedBox(height: AppSpacing.xl),
+          ProductInformation(
+            product: product,
+            onAddToCart: () => _addToCart(context),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _addToCart(BuildContext context) {
+    context.read<CartBloc>().add(
+      CartItemAdded(
+        CartItem(
+          productId: product.id,
+          productName: product.name,
+          imageUrl: product.images.isNotEmpty ? product.images.first : '',
+          unitPrice: product.price,
+          quantity: 1,
+        ),
+      ),
+    );
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Added to cart')));
   }
 }
 

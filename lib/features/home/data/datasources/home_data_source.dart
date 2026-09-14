@@ -17,7 +17,7 @@ class HomeDataSourceImpl implements HomeDataSource {
 
     final products = [
       const ProductPreview(
-        id: 'p1',
+        id: 'product-1',
         name: 'Apple iPhone 16',
         imageUrl: 'https://picsum.photos/seed/iphone/600/600',
         price: 69999,
@@ -27,7 +27,7 @@ class HomeDataSourceImpl implements HomeDataSource {
         reviewCount: 1820,
       ),
       const ProductPreview(
-        id: 'p2',
+        id: 'product-2',
         name: 'Samsung Galaxy S25',
         imageUrl: 'https://picsum.photos/seed/samsung/600/600',
         price: 74999,
@@ -37,7 +37,7 @@ class HomeDataSourceImpl implements HomeDataSource {
         reviewCount: 940,
       ),
       const ProductPreview(
-        id: 'p3',
+        id: 'product-3',
         name: 'Sony Wireless Headphones',
         imageUrl: 'https://picsum.photos/seed/headphones/600/600',
         price: 8999,
@@ -47,7 +47,7 @@ class HomeDataSourceImpl implements HomeDataSource {
         reviewCount: 2300,
       ),
       const ProductPreview(
-        id: 'p4',
+        id: 'product-4',
         name: 'Nike Running Shoes',
         imageUrl: 'https://picsum.photos/seed/shoes/600/600',
         price: 5499,

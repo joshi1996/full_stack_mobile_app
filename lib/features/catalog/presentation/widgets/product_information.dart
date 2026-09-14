@@ -7,9 +7,14 @@ import '../../domain/entities/product.dart';
 import 'product_action_bar.dart';
 
 class ProductInformation extends StatelessWidget {
-  const ProductInformation({required this.product, super.key});
+  const ProductInformation({
+    required this.product,
+    required this.onAddToCart,
+    super.key,
+  });
 
   final Product product;
+  final VoidCallback onAddToCart;
 
   @override
   Widget build(BuildContext context) {
@@ -37,13 +42,7 @@ class ProductInformation extends StatelessWidget {
         const SizedBox(height: AppSpacing.xl),
 
         ProductActionBar(
-          onAddToCart: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Add to Cart will be connected soon.'),
-              ),
-            );
-          },
+          onAddToCart: onAddToCart,
           onBuyNow: () {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Buy Now will be connected soon.')),

@@ -6,9 +6,14 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../domain/entities/category.dart';
 
 class CategoryCarousel extends StatelessWidget {
-  const CategoryCarousel({required this.categories, super.key});
+  const CategoryCarousel({
+    required this.categories,
+    required this.onCategoryTap,
+    super.key,
+  });
 
   final List<Category> categories;
+  final ValueChanged<Category> onCategoryTap;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +30,7 @@ class CategoryCarousel extends StatelessWidget {
             width: 105,
             child: InkWell(
               borderRadius: BorderRadius.circular(AppRadius.lg),
-              onTap: () {},
+              onTap: () => onCategoryTap(category),
               child: Column(
                 children: [
                   AppNetworkImage(

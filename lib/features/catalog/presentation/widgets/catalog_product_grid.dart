@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:full_stack_mobile_app/core/routing/route_names.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/product_card.dart';
@@ -47,6 +49,19 @@ class CatalogProductGrid extends StatelessWidget {
               ? AppSpacing.lg
               : AppSpacing.xl;
 
+          final availableWidth =
+              width -
+              (horizontalPadding * 2) -
+              (AppSpacing.md * (crossAxisCount - 1));
+
+          final cardWidth = availableWidth / crossAxisCount;
+
+          // ProductCard contains:
+          // image + product information + rating + price + button.
+          //
+          // A fixed 0.68 aspect ratio is too short for that content.
+          final cardHeight = cardWidth + 190;
+
           return GridView.builder(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: EdgeInsets.all(horizontalPadding),
@@ -54,7 +69,7 @@ class CatalogProductGrid extends StatelessWidget {
               crossAxisCount: crossAxisCount,
               crossAxisSpacing: AppSpacing.md,
               mainAxisSpacing: AppSpacing.lg,
-              childAspectRatio: 0.68,
+              mainAxisExtent: cardHeight,
             ),
             itemCount: products.length,
             itemBuilder: (context, index) {
@@ -68,7 +83,12 @@ class CatalogProductGrid extends StatelessWidget {
                 discountPercentage: product.discountPercentage,
                 rating: product.rating,
                 reviewCount: product.reviewCount,
-                onTap: () {},
+                onTap: () {
+                  context.pushNamed(
+                    RouteNames.productDetails,
+                    pathParameters: {'productId': product.id},
+                  );
+                },
                 onAddToCart: () {},
               );
             },

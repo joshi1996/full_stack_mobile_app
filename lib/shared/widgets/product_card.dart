@@ -43,22 +43,26 @@ class ProductCard extends StatelessWidget {
               discountPercentage: discountPercentage,
             ),
             Padding(
-              padding: const EdgeInsets.all(AppSpacing.md),
+              padding: const EdgeInsets.all(AppSpacing.sm),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+                  SizedBox(
+                    height: 40,
+                    child: Text(
+                      name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
-                  if (rating != null)
+                  if (rating != null) ...[
                     RatingView(rating: rating!, reviewCount: reviewCount),
-                  const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: AppSpacing.sm),
+                  ],
                   PriceText(price: price, originalPrice: originalPrice),
                   if (onAddToCart != null) ...[
                     const SizedBox(height: AppSpacing.sm),
