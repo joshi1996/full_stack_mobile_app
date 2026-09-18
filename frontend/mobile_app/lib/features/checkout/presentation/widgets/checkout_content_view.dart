@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:full_stack_mobile_app/features/checkout/domain/entities/checkout.dart';
+import 'package:go_router/go_router.dart';
 
-import '../bloc/checkout_bloc.dart';
-import '../bloc/checkout_state.dart';
+import 'package:full_stack_mobile_app/core/routing/route_names.dart';
+import 'package:full_stack_mobile_app/features/cart/presentation/bloc/cart_bloc.dart';
+import 'package:full_stack_mobile_app/features/cart/presentation/bloc/cart_event.dart';
+import 'package:full_stack_mobile_app/features/checkout/domain/entities/checkout.dart';
+import 'package:full_stack_mobile_app/features/checkout/presentation/bloc/checkout_bloc.dart';
+import 'package:full_stack_mobile_app/features/checkout/presentation/bloc/checkout_state.dart';
+import 'package:full_stack_mobile_app/features/order/presentation/bloc/order_bloc.dart';
+import 'package:full_stack_mobile_app/features/order/presentation/bloc/order_operation_status.dart';
+import 'package:full_stack_mobile_app/features/order/presentation/bloc/order_state.dart';
+
 import 'checkout_address_section.dart';
 import 'checkout_items_section.dart';
 import 'checkout_payment_section.dart';
@@ -15,38 +23,77 @@ class CheckoutContentView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CheckoutBloc, CheckoutState>(
-      builder: (context, state) {
-        switch (state.status) {
-          case CheckoutStatus.initial:
-          case CheckoutStatus.loading:
-            return const Center(child: CircularProgressIndicator());
-
-          case CheckoutStatus.failure:
-            return _CheckoutErrorView(
-              message: state.errorMessage,
-              onRetry: () {
-                // Retry will be connected when checkout
-                // becomes backend-driven.
-              },
+    return BlocListener<OrderBloc, OrderState>(
+      listener: (context, orderState) {
+        if (orderState.status == OrderOperationStatus.failure) {
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              SnackBar(
+                content: Text(
+                  orderState.errorMessage ?? 'Unable to place order.',
+                ),
+              ),
             );
 
-          case CheckoutStatus.success:
-            final checkout = state.checkout;
+          return;
+        }
 
-            if (checkout == null) {
-              return const Center(
-                child: Text('Checkout information unavailable'),
+        if (orderState.status == OrderOperationStatus.created) {
+          final order = orderState.order;
+
+          if (order == null) {
+            ScaffoldMessenger.of(context)
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'Order was created, but details are unavailable.',
+                  ),
+                ),
               );
-            }
 
-            if (checkout.items.isEmpty) {
-              return const _EmptyCheckoutView();
-            }
+            return;
+          }
 
-            return _CheckoutSuccessView(checkout: checkout);
+          context.read<CartBloc>().add(const CartCleared());
+
+          context.goNamed(RouteNames.orderConfirmation, extra: order);
         }
       },
+      child: BlocBuilder<CheckoutBloc, CheckoutState>(
+        builder: (context, state) {
+          switch (state.status) {
+            case CheckoutStatus.initial:
+            case CheckoutStatus.loading:
+              return const Center(child: CircularProgressIndicator());
+
+            case CheckoutStatus.failure:
+              return _CheckoutErrorView(
+                message: state.errorMessage,
+                onRetry: () {
+                  // Retry will be connected when checkout
+                  // becomes backend-driven.
+                },
+              );
+
+            case CheckoutStatus.success:
+              final checkout = state.checkout;
+
+              if (checkout == null) {
+                return const Center(
+                  child: Text('Checkout information unavailable'),
+                );
+              }
+
+              if (checkout.items.isEmpty) {
+                return const _EmptyCheckoutView();
+              }
+
+              return _CheckoutSuccessView(checkout: checkout);
+          }
+        },
+      ),
     );
   }
 }

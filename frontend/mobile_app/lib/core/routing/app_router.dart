@@ -20,6 +20,10 @@ import 'package:full_stack_mobile_app/features/checkout/presentation/pages/check
 import 'package:full_stack_mobile_app/features/home/presentation/pages/home_page.dart';
 import 'package:full_stack_mobile_app/features/home/presentation/widgets/customer_app_shell.dart';
 import 'package:full_stack_mobile_app/features/home/presentation/widgets/customer_placeholder_page.dart';
+import 'package:full_stack_mobile_app/features/order/domain/entities/order.dart';
+import 'package:full_stack_mobile_app/features/order/presentation/pages/order_confirmation_page.dart';
+import 'package:full_stack_mobile_app/features/order/presentation/pages/order_details_page.dart';
+import 'package:full_stack_mobile_app/features/order/presentation/pages/orders_page.dart';
 import 'package:go_router/go_router.dart';
 
 abstract final class AppRouter {
@@ -107,7 +111,7 @@ abstract final class AppRouter {
               path: RoutePaths.orders,
               name: RouteNames.orders,
               builder: (context, state) {
-                return const CustomerPlaceholderPage(title: 'Orders');
+                return const OrdersPage();
               },
             ),
             GoRoute(
@@ -176,6 +180,38 @@ abstract final class AppRouter {
               value: addressBloc,
               child: const AddAddressPage(),
             );
+          },
+        ),
+
+        GoRoute(
+          name: RouteNames.orderConfirmation,
+          path: RoutePaths.orderConfirmation,
+          builder: (context, state) {
+            final order = state.extra;
+
+            if (order is! Order) {
+              return const Scaffold(
+                body: Center(child: Text('Order confirmation is unavailable.')),
+              );
+            }
+
+            return OrderConfirmationPage(order: order);
+          },
+        ),
+
+        GoRoute(
+          path: RoutePaths.orderDetails,
+          name: RouteNames.orderDetails,
+          builder: (context, state) {
+            final orderId = state.pathParameters['orderId'];
+
+            if (orderId == null || orderId.isEmpty) {
+              return const Scaffold(
+                body: Center(child: Text('Order not found.')),
+              );
+            }
+
+            return OrderDetailsPage(orderId: orderId);
           },
         ),
       ],

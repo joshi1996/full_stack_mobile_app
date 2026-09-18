@@ -11,4 +11,7 @@ abstract final class RouteNames {
   static const checkout = 'checkout';
   static const addressSelection = 'address-selection';
   static const addAddress = 'add-address';
+
+  static const orderConfirmation = 'order-confirmation';
+  static const orderDetails = 'order-details';
 }

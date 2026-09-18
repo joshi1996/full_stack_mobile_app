@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../cart/domain/entities/cart.dart';
+import '../../../order/presentation/bloc/order_bloc.dart';
 import '../bloc/checkout_bloc.dart';
 import '../bloc/checkout_event.dart';
 import '../widgets/checkout_content_view.dart';
@@ -14,8 +15,13 @@ class CheckoutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<CheckoutBloc>()..add(CheckoutStarted(cart)),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => getIt<CheckoutBloc>()..add(CheckoutStarted(cart)),
+        ),
+        BlocProvider(create: (_) => getIt<OrderBloc>()),
+      ],
       child: const Scaffold(
         appBar: _CheckoutAppBar(),
         body: CheckoutContentView(),
