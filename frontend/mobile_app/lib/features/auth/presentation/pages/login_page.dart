@@ -43,6 +43,7 @@ class _LoginPageState extends State<LoginPage> {
       LoginSubmitted(
         email: _emailController.text.trim(),
         password: _passwordController.text,
+        authRevision: context.read<AuthBloc>().beginLoginAttempt(),
       ),
     );
   }
@@ -52,7 +53,9 @@ class _LoginPageState extends State<LoginPage> {
     return BlocConsumer<LoginBloc, LoginState>(
       listener: (context, state) {
         if (state is LoginSuccess) {
-          context.read<AuthBloc>().authenticated();
+          if (state.authRevision case final revision?) {
+            context.read<AuthBloc>().authenticated(attemptRevision: revision);
+          }
         }
 
         if (state is LoginFailure) {

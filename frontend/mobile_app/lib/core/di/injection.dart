@@ -1,4 +1,9 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:full_stack_mobile_app/core/network/api_client.dart';
+import 'package:full_stack_mobile_app/core/network/api_config.dart';
+import 'package:full_stack_mobile_app/core/network/auth_interceptor.dart';
+import 'package:full_stack_mobile_app/core/network/auth_session_coordinator.dart';
 import 'package:full_stack_mobile_app/features/address/data/datasources/address_data_source.dart';
 import 'package:full_stack_mobile_app/features/address/data/repositories/address_repository_impl.dart';
 import 'package:full_stack_mobile_app/features/address/domain/repositories/address_repository.dart';
@@ -38,17 +43,49 @@ import 'package:get_it/get_it.dart';
 
 final getIt = GetIt.instance;
 
+void registerNetworkDependencies() {
+  getIt.registerLazySingleton<ApiConfig>(ApiConfig.new);
+  getIt.registerLazySingleton<Dio>(() {
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: getIt<ApiConfig>().baseUrl,
+        connectTimeout: const Duration(seconds: 8),
+        sendTimeout: const Duration(seconds: 8),
+        receiveTimeout: const Duration(seconds: 12),
+        headers: const {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      ),
+    );
+    dio.interceptors.add(AuthInterceptor(getIt<AuthSessionCoordinator>()));
+    return dio;
+  });
+  getIt.registerLazySingleton<ApiClient>(() => ApiClient(getIt<Dio>()));
+}
+
 void registerAuthDependencies() {
+  getIt.registerLazySingleton<FlutterSecureStorage>(FlutterSecureStorage.new);
+  getIt.registerLazySingleton<SecureKeyValueStore>(
+    () => FlutterSecureKeyValueStore(getIt<FlutterSecureStorage>()),
+  );
+  getIt.registerLazySingleton<AuthLocalDataSource>(
+    () => AuthLocalDataSourceImpl(getIt<SecureKeyValueStore>()),
+  );
+  getIt.registerLazySingleton<AuthSessionCoordinator>(
+    () => AuthSessionCoordinator(getIt<AuthLocalDataSource>()),
+  );
+
   // Data source
   getIt.registerLazySingleton<AuthRemoteDataSource>(
-    AuthRemoteDataSourceImpl.new,
+    () => AuthRemoteDataSourceImpl(getIt<ApiClient>()),
   );
 
   // Repository
   getIt.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryImpl(
       getIt<AuthRemoteDataSource>(),
-      getIt<AuthLocalDataSource>(),
+      getIt<AuthSessionCoordinator>(),
     ),
   );
 
@@ -60,12 +97,6 @@ void registerAuthDependencies() {
 
   getIt.registerLazySingleton<AuthBloc>(
     () => AuthBloc(getIt<AuthRepository>()),
-  );
-
-  getIt.registerLazySingleton<FlutterSecureStorage>(FlutterSecureStorage.new);
-
-  getIt.registerLazySingleton<AuthLocalDataSource>(
-    () => AuthLocalDataSourceImpl(getIt<FlutterSecureStorage>()),
   );
 }
 

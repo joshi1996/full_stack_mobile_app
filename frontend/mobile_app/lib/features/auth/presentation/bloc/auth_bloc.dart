@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter/foundation.dart';
+import 'package:full_stack_mobile_app/core/error/failure.dart';
+
+import '../../domain/entities/auth_status.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'auth_state.dart';
 
@@ -7,69 +9,56 @@ class AuthBloc extends Cubit<AuthState> {
   AuthBloc(this.repository) : super(const AuthInitial());
 
   final AuthRepository repository;
+  int _sessionCheckRevision = 0;
 
   Future<void> checkAuthStatus() async {
-    debugPrint('AUTH: checkAuthStatus START');
+    final revision = ++_sessionCheckRevision;
+    if (state.status == AuthStatus.restorationFailed) {
+      emit(const AuthInitial());
+    }
 
     try {
       final result = await repository.getCurrentUser();
+      if (revision != _sessionCheckRevision) return;
 
-      debugPrint('AUTH: getCurrentUser COMPLETED');
-
-      result.fold(
-        (failure) {
-          debugPrint('AUTH: FAILURE -> ${failure.message}');
-          emit(const AuthUnauthenticated());
-        },
-        (user) {
-          debugPrint('AUTH: USER -> ${user?.email}');
-
-          if (user == null) {
-            debugPrint('AUTH: EMIT unauthenticated');
-            emit(const AuthUnauthenticated());
-          } else {
-            debugPrint('AUTH: EMIT authenticated');
-            emit(const AuthAuthenticated());
-          }
-        },
+      result.fold((failure) => emit(AuthRestoreFailed(failure)), (user) {
+        emit(
+          user == null
+              ? const AuthUnauthenticated()
+              : const AuthAuthenticated(),
+        );
+      });
+    } on Object {
+      if (revision != _sessionCheckRevision) return;
+      emit(
+        const AuthRestoreFailed(
+          NetworkFailure('Unable to verify your session. Please try again.'),
+        ),
       );
-    } catch (exception, stackTrace) {
-      debugPrint('AUTH: EXCEPTION -> $exception');
-      debugPrintStack(stackTrace: stackTrace);
-
-      emit(const AuthUnauthenticated());
     }
   }
 
-  // Future<void> checkAuthStatus() async {
-  //   final result = await repository.getCurrentUser();
+  int beginLoginAttempt() => ++_sessionCheckRevision;
 
-  //   result.fold(
-  //     (_) {
-  //       emit(const AuthUnauthenticated());
-  //     },
-  //     (user) {
-  //       if (user == null) {
-  //         emit(const AuthUnauthenticated());
-  //       } else {
-  //         emit(const AuthAuthenticated());
-  //       }
-  //     },
-  //   );
-  // }
-
-  void authenticated() {
+  void authenticated({required int attemptRevision}) {
+    if (attemptRevision != _sessionCheckRevision) return;
+    _sessionCheckRevision++;
     emit(const AuthAuthenticated());
   }
 
-  Future<void> logout() async {
-    final result = await repository.logout();
+  void sessionExpired() {
+    _sessionCheckRevision++;
+    emit(const AuthUnauthenticated());
+  }
 
+  Future<void> logout() async {
+    _sessionCheckRevision++;
+    final result = await repository.logout();
     result.fold(
+      (failure) =>
+          emit(AuthLogoutFailed(status: state.status, failure: failure)),
       (_) {
-        // We'll improve logout failure handling later.
-      },
-      (_) {
+        _sessionCheckRevision++;
         emit(const AuthUnauthenticated());
       },
     );

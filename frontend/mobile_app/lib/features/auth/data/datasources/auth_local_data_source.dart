@@ -1,44 +1,67 @@
-import 'dart:convert';
-
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:full_stack_mobile_app/core/error/app_exception.dart';
+import 'package:full_stack_mobile_app/core/network/access_token_storage.dart';
 
-import '../models/user_model.dart';
+abstract interface class SecureKeyValueStore {
+  Future<String?> read(String key);
 
-abstract interface class AuthLocalDataSource {
-  Future<void> saveUser(UserModel user);
+  Future<void> write(String key, String value);
 
-  Future<UserModel?> getSavedUser();
+  Future<void> delete(String key);
+}
 
-  Future<void> clearUser();
+class FlutterSecureKeyValueStore implements SecureKeyValueStore {
+  const FlutterSecureKeyValueStore(this._storage);
+
+  final FlutterSecureStorage _storage;
+
+  @override
+  Future<String?> read(String key) => _storage.read(key: key);
+
+  @override
+  Future<void> write(String key, String value) =>
+      _storage.write(key: key, value: value);
+
+  @override
+  Future<void> delete(String key) => _storage.delete(key: key);
+}
+
+abstract interface class AuthLocalDataSource implements AccessTokenStorage {
+  @override
+  Future<void> saveAccessToken(String token);
 }
 
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
-  AuthLocalDataSourceImpl(this.storage);
+  AuthLocalDataSourceImpl(this._storage);
 
-  final FlutterSecureStorage storage;
+  static const String _accessTokenKey = 'auth_access_token';
 
-  static const String _userKey = 'auth_user';
-
-  @override
-  Future<void> saveUser(UserModel user) async {
-    await storage.write(key: _userKey, value: jsonEncode(user.toJson()));
-  }
+  final SecureKeyValueStore _storage;
 
   @override
-  Future<UserModel?> getSavedUser() async {
-    final value = await storage.read(key: _userKey);
-
-    if (value == null) {
-      return null;
+  Future<void> saveAccessToken(String token) async {
+    try {
+      await _storage.write(_accessTokenKey, token);
+    } on Object {
+      throw const CacheException('Unable to securely save the session.');
     }
-
-    final json = jsonDecode(value) as Map<String, dynamic>;
-
-    return UserModel.fromJson(json);
   }
 
   @override
-  Future<void> clearUser() async {
-    await storage.delete(key: _userKey);
+  Future<String?> readAccessToken() async {
+    try {
+      return await _storage.read(_accessTokenKey);
+    } on Object {
+      throw const CacheException('Unable to read the saved session.');
+    }
+  }
+
+  @override
+  Future<void> clearAccessToken() async {
+    try {
+      await _storage.delete(_accessTokenKey);
+    } on Object {
+      throw const CacheException('Unable to clear the saved session.');
+    }
   }
 }

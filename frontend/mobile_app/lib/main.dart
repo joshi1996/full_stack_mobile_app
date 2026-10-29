@@ -7,6 +7,8 @@ import 'package:full_stack_mobile_app/features/cart/presentation/bloc/cart_bloc.
 import 'package:full_stack_mobile_app/features/cart/presentation/bloc/cart_event.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  registerNetworkDependencies();
   registerAuthDependencies();
   registerHomeDependencies();
   registerCatalogDependencies();

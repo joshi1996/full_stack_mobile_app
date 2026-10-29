@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:full_stack_mobile_app/core/di/injection.dart';
+import 'package:full_stack_mobile_app/core/network/auth_session_coordinator.dart';
 import 'package:full_stack_mobile_app/core/routing/auth_refresh_notifier.dart';
 import 'package:full_stack_mobile_app/core/routing/route_names.dart';
 import 'package:full_stack_mobile_app/core/routing/route_paths.dart';
@@ -28,7 +29,10 @@ import 'package:go_router/go_router.dart';
 
 abstract final class AppRouter {
   static GoRouter createRouter(AuthBloc authBloc) {
-    final refreshNotifier = AuthRefreshNotifier(authBloc);
+    final refreshNotifier = AuthRefreshNotifier(
+      authBloc,
+      getIt<AuthSessionCoordinator>(),
+    );
 
     return GoRouter(
       initialLocation: RoutePaths.authLoading,
@@ -41,8 +45,9 @@ abstract final class AppRouter {
         final isLoginRoute = location == RoutePaths.login;
         final isAuthLoadingRoute = location == RoutePaths.authLoading;
 
-        // Authentication is still being restored.
-        if (authStatus == AuthStatus.unknown) {
+        // Authentication is still being restored or needs a retry.
+        if (authStatus == AuthStatus.unknown ||
+            authStatus == AuthStatus.restorationFailed) {
           return isAuthLoadingRoute ? null : RoutePaths.authLoading;
         }
 

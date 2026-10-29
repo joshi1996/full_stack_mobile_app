@@ -19,12 +19,13 @@ final class LoginLoading extends LoginState {
 }
 
 final class LoginSuccess extends LoginState {
-  const LoginSuccess(this.user);
+  const LoginSuccess(this.user, {this.authRevision});
 
   final User user;
+  final int? authRevision;
 
   @override
-  List<Object?> get props => [user];
+  List<Object?> get props => [user, authRevision];
 }
 
 final class LoginFailure extends LoginState {

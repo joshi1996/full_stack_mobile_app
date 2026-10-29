@@ -5,15 +5,11 @@ export const envValidationSchema = Joi.object({
     .valid('development', 'test', 'production')
     .default('development'),
 
-  PORT: Joi.number()
-    .port()
-    .default(3000),
+  PORT: Joi.number().port().default(3000),
 
-  DATABASE_URL: Joi.string()
-    .uri()
-    .required(),
+  DATABASE_URL: Joi.string().uri().required(),
 
-  REDIS_URL: Joi.string()
-    .uri()
-    .required(),
+  REDIS_URL: Joi.string().uri().required(),
+
+  JWT_SECRET: Joi.string().min(32).required(),
 });

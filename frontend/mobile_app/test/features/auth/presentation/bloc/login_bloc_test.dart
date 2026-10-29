@@ -33,6 +33,26 @@ class FakeAuthRepository implements AuthRepository {
 void main() {
   group('LoginBloc', () {
     blocTest<LoginBloc, LoginState>(
+      'emits [LoginLoading, LoginSuccess] when login succeeds',
+      build: () {
+        final login = Login(FakeAuthRepository());
+        return LoginBloc(login);
+      },
+      act: (bloc) => bloc.add(
+        const LoginSubmitted(
+          email: 'amit@example.com',
+          password: 'correct-password',
+        ),
+      ),
+      expect: () => [
+        const LoginLoading(),
+        const LoginSuccess(
+          User(id: '1', email: 'amit@example.com', name: 'Amit'),
+        ),
+      ],
+    );
+
+    blocTest<LoginBloc, LoginState>(
       'emits [LoginLoading, LoginFailure] when login fails',
       build: () {
         final repository = FakeFailureAuthRepository();

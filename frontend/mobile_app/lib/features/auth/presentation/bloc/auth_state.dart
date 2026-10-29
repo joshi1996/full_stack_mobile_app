@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:full_stack_mobile_app/core/error/failure.dart';
 
 import '../../domain/entities/auth_status.dart';
 
@@ -21,4 +22,23 @@ final class AuthAuthenticated extends AuthState {
 
 final class AuthUnauthenticated extends AuthState {
   const AuthUnauthenticated() : super(AuthStatus.unauthenticated);
+}
+
+final class AuthRestoreFailed extends AuthState {
+  const AuthRestoreFailed(this.failure) : super(AuthStatus.restorationFailed);
+
+  final Failure failure;
+
+  @override
+  List<Object?> get props => [...super.props, failure];
+}
+
+final class AuthLogoutFailed extends AuthState {
+  const AuthLogoutFailed({required AuthStatus status, required this.failure})
+    : super(status);
+
+  final Failure failure;
+
+  @override
+  List<Object?> get props => [...super.props, failure];
 }

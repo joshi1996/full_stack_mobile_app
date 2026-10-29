@@ -15,15 +15,15 @@ export const users = pgTable('users', {
 
   email: varchar('email', {
     length: 255,
-  }).notNull().unique(),
+  })
+    .notNull()
+    .unique(),
 
   password: varchar('password', {
     length: 255,
   }).notNull(),
 
-  isActive: boolean('is_active')
-    .notNull()
-    .default(true),
+  isActive: boolean('is_active').notNull().default(true),
 
   createdAt: timestamp('created_at', {
     withTimezone: true,
